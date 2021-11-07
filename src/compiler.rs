@@ -36,6 +36,7 @@ impl Compiler {
             if let StatementKind::Lset(addr) = &statement.kind {
                 if let Some(label) = &statement.label {
                     labels.insert(label.to_owned(), *addr);
+                    labels.insert(format!(".{}", label), *addr);
                 } else {
                     println!("WARNING! No label at lset at pos {}", idx + 1);
                 }
@@ -43,6 +44,7 @@ impl Compiler {
             }
             if let Some(label) = &statement.label {
                 labels.insert(label.to_owned(), code_ptr);
+                labels.insert(format!(".{}", label), code_ptr);
             }
             if let Some((code, pretty)) = Self::parse_statement(&statement, &labels) {
                 pretty_out.push(pretty.to_uppercase());
@@ -142,6 +144,16 @@ impl Compiler {
             StatementKind::Xor(reg) => Some((vec![0xA8 + reg.code_off()], format!("xra {}", reg.name()))),
             StatementKind::Or(reg) => Some((vec![0xB0 + reg.code_off()], format!("ora {}", reg.name()))),
             StatementKind::Cmp(reg) => Some((vec![0xB8 + reg.code_off()], format!("cmp {}", reg.name()))),
+            StatementKind::Neg(reg) => {
+                match reg {
+                    Register::A => Some((vec![0x2F], format!("cma"))),
+                    Register::C => Some((vec![0x3F], format!("cmc"))),
+                    _ => {
+                        eprintln!("Neg is not supported for register {}", reg.name());
+                        None
+                    }
+                }
+            },
             StatementKind::Mov(a, b) => {
                 match a {
                     MovArg::Constant(_) => {

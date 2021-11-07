@@ -8,7 +8,8 @@ pub File: Box<File> = <s:(Statement)*> <last:Statement> => {
     Box::new(File {statements: s})
 };
 
-Str: String = <s:r"[a-zA-Z_0-9]+"> => s.to_string();
+Str: String = <s:r"[a-zA-Z_0-9\.]+"> => s.to_string();
+Label: String = <s:r"\.[a-zA-Z_]+:"> => s[1..s.len()-1].to_string();
 Num: u16 = <s:Str> => {
     let radix = if s.starts_with("0b") { 2 } else if s.starts_with("0x") { 16 } else { 10 };
     if radix == 10 {
@@ -19,7 +20,7 @@ Num: u16 = <s:Str> => {
 };
 
 Statement: Box<Statement> = {
-    "." <label:Str> ":" <k:StatementKind> => Box::new(Statement { label: Some(label), kind: k }),
+    <label:Label> <k:StatementKind> => Box::new(Statement { label: Some(label), kind: k }),
     <k:StatementKind> => Box::new(Statement { label: None, kind: k }),
 }
 
@@ -53,6 +54,7 @@ StatementKind: StatementKind = {
     "jm " <r:Str> => StatementKind::Jm(r),
     "lset " <r:Num> => StatementKind::Lset(r),
     "mov " <a:MovArg> "," <b:MovArg> => StatementKind::Mov(a, b),
+    "neg " <r:Register> => StatementKind::Neg(r),
 }
 
 Register: Register = {

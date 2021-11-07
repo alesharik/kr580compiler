@@ -144,6 +144,7 @@ pub enum StatementKind {
     Jpe(String),
     Jp(String),
     Jm(String),
+    Neg(Register),
     // set label to specific address
     Lset(u16),
 }
