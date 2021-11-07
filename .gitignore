@@ -1,0 +1,5 @@
+/target
+/.idea
+test.bin
+test_table.csv
+test.asm

@@ -1,0 +1,88 @@
+use crate::ast::*;
+
+grammar;
+
+pub File: Box<File> = <s:(Statement)*> <last:Statement> => {
+    let mut s = s;
+    s.push(last);
+    Box::new(File {statements: s})
+};
+
+Str: String = <s:r"[a-zA-Z_0-9]+"> => s.to_string();
+Num: u16 = <s:Str> => {
+    let radix = if s.starts_with("0b") { 2 } else if s.starts_with("0x") { 16 } else { 10 };
+    if radix == 10 {
+        u16::from_str_radix(&s, radix).unwrap()
+    } else {
+        u16::from_str_radix(&s[2..], radix).unwrap()
+    }
+};
+
+Statement: Box<Statement> = {
+    "." <label:Str> ":" <k:StatementKind> => Box::new(Statement { label: Some(label), kind: k }),
+    <k:StatementKind> => Box::new(Statement { label: None, kind: k }),
+}
+
+StatementKind: StatementKind = {
+    "nop" => StatementKind::Nop,
+    "rlc" => StatementKind::Rlc,
+    "rrc" => StatementKind::Rrc,
+    "ral" => StatementKind::Ral,
+    "rar" => StatementKind::Rar,
+    "stc" => StatementKind::Stc,
+    "cmc" => StatementKind::Cmc,
+    "add " <r:Register> => StatementKind::Add(r),
+    "adc " <r:Register> => StatementKind::Adc(r),
+    "sub " <r:Register> => StatementKind::Sub(r),
+    "sbb " <r:Register> => StatementKind::Sbb(r),
+    "and " <r:Register> => StatementKind::And(r),
+    "or " <r:Register> => StatementKind::Or(r),
+    "xor " <r:Register> => StatementKind::Xor(r),
+    "cmp " <r:Register> => StatementKind::Cmp(r),
+    "jmp " <r:Str> => StatementKind::Jmp(r),
+    "rst" <r:Num> => StatementKind::Rst(r as u8),
+    "out" <r:Num> => StatementKind::Out(r as u8),
+    "in" <r:Num> => StatementKind::In(r as u8),
+    "jz " <r:Str> => StatementKind::Jz(r),
+    "jnz " <r:Str> => StatementKind::Jnz(r),
+    "jc " <r:Str> => StatementKind::Jc(r),
+    "jnc " <r:Str> => StatementKind::Jnc(r),
+    "jpo " <r:Str> => StatementKind::Jpo(r),
+    "jpe " <r:Str> => StatementKind::Jpe(r),
+    "jp " <r:Str> => StatementKind::Jp(r),
+    "jm " <r:Str> => StatementKind::Jm(r),
+    "lset " <r:Num> => StatementKind::Lset(r),
+    "mov " <a:MovArg> "," <b:MovArg> => StatementKind::Mov(a, b),
+}
+
+Register: Register = {
+    "a" => Register::A,
+    "b" => Register::B,
+    "c" => Register::C,
+    "d" => Register::D,
+    "e" => Register::E,
+    "h" => Register::H,
+    "l" => Register::L,
+    "m" => Register::M,
+}
+
+MovArg: MovArg = {
+    "a" => MovArg::Register(Register::A),
+    "b" => MovArg::Register(Register::B),
+    "c" => MovArg::Register(Register::C),
+    "d" => MovArg::Register(Register::D),
+    "e" => MovArg::Register(Register::E),
+    "h" => MovArg::Register(Register::H),
+    "l" => MovArg::Register(Register::L),
+    "m" => MovArg::Register(Register::M),
+    "bc" => MovArg::RegisterPair(RegisterPair::BC),
+    "de" => MovArg::RegisterPair(RegisterPair::DE),
+    "hl" => MovArg::RegisterPair(RegisterPair::HL),
+    "sp" => MovArg::RegisterPair(RegisterPair::SP),
+    "[" <n:Num> "]" => MovArg::MemoryDirect(n),
+    "[" "bc" "]" => MovArg::MemoryIndirect(RegisterPair::BC),
+    "[" "de" "]" => MovArg::MemoryIndirect(RegisterPair::DE),
+    "[" "hl" "]" => MovArg::MemoryIndirect(RegisterPair::HL),
+    "[" "sp" "]" => MovArg::MemoryIndirect(RegisterPair::SP),
+    <n:Num> => MovArg::Constant(n),
+}
