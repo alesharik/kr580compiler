@@ -75,6 +75,15 @@ impl Compiler {
         vec
     }
 
+    fn check_8bit_const(c: &u16) -> Option<()> {
+        if *c > 255u16 {
+            eprintln!("Cannot add two-byte constant");
+            None
+        } else {
+            Some(())
+        }
+    }
+
     fn parse_statement(statement: &Statement, label_map: &HashMap<String, u16>) -> Option<(Vec<u8>, String)> {
         match &statement.kind {
             StatementKind::Lset(_) => None,
@@ -150,6 +159,14 @@ impl Compiler {
             StatementKind::Or(reg) => Some((vec![0xB0 + reg.code_off()], format!("ora {}", reg.name()))),
             StatementKind::Cmp(reg) => Some((vec![0xB8 + reg.code_off()], format!("cmp {}", reg.name()))),
             StatementKind::Dad(pair) => Some((vec![0x09 + pair.left_table_x_off()], format!("dat {}", pair.name()))),
+            StatementKind::Adcn(c) => Self::check_8bit_const(c).map(|_| (vec![0xCE, *c as u8], format!("aci {:02X}", c))),
+            StatementKind::Addn(c) => Self::check_8bit_const(c).map(|_| (vec![0xC6, *c as u8], format!("adi {:02X}", c))),
+            StatementKind::Subn(c) => Self::check_8bit_const(c).map(|_| (vec![0xD6, *c as u8], format!("sui {:02X}", c))),
+            StatementKind::Sbbn(c) => Self::check_8bit_const(c).map(|_| (vec![0xDE, *c as u8], format!("sbi {:02X}", c))),
+            StatementKind::Orn(c) => Self::check_8bit_const(c).map(|_| (vec![0xF6, *c as u8], format!("ori {:02X}", c))),
+            StatementKind::Andn(c) => Self::check_8bit_const(c).map(|_| (vec![0xE6, *c as u8], format!("ani {:02X}", c))),
+            StatementKind::Xorn(c) => Self::check_8bit_const(c).map(|_| (vec![0xEE, *c as u8], format!("xri {:02X}", c))),
+            StatementKind::Cmpn(c) => Self::check_8bit_const(c).map(|_| (vec![0xFE, *c as u8], format!("cpi {:02X}", c))),
             StatementKind::Neg(reg) => {
                 match reg {
                     Register::A => Some((vec![0x2F], format!("cma"))),

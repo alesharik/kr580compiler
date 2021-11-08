@@ -112,26 +112,28 @@ pub enum MovArg {
 pub enum StatementKind {
     Nop,
     Mov(MovArg, MovArg),
-    // cyclic <<
     Rlc,
-    // cyclic >>
     Rrc,
-    // carry <<
     Ral,
-    // carry >>
     Rar,
-    // set carry flag
     Stc,
-    // invert carry flag
     Cmc,
     Add(Register),
     Adc(Register),
+    Addn(u16),
+    Adcn(u16),
     Sub(Register),
     Sbb(Register),
+    Subn(u16),
+    Sbbn(u16),
     And(Register),
+    Andn(u16),
     Or(Register),
+    Orn(u16),
     Xor(Register),
+    Xorn(u16),
     Cmp(Register),
+    Cmpn(u16),
     Jmp(String),
     Rst(u8),
     Out(u8),
