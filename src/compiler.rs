@@ -53,16 +53,19 @@ impl Compiler {
                     data.push(*b);
                     code_str += &format!("{:02X} ", b);
                 }
-                table.push(format!("{:04X};{};{}", code_ptr, code_str, pretty));
+                table.push(format!("{:04X};{};{};{}", code_ptr, code_str, &statement.label.clone().unwrap_or("".to_owned()), pretty));
                 code_ptr += code.len() as u16;
             }
         }
         CompilerResult { pretty_instructions: pretty_out, data, table }
     }
 
-    fn pretty_print_addr(addr: u16) -> String {
-        let bytes = addr.to_le_bytes();
-        format!("{:02X}{:02X}", bytes[0], bytes[1])
+    fn format_label(label: &str) -> &str {
+        if label.starts_with(".") {
+            &label[1..]
+        } else {
+            label
+        }
     }
 
     fn prepend_to_addr(val: u8, addr: u16) -> Vec<u8> {
@@ -86,39 +89,39 @@ impl Compiler {
             StatementKind::Stc => Some((vec![0x37], "stc".to_owned())),
             StatementKind::Jz(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xCA, addr), format!("jz {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xCA, addr), format!("jz {}", Self::format_label(label))))
             }
             StatementKind::Jnz(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xC2, addr), format!("jnz {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xC2, addr), format!("jnz {}", Self::format_label(label))))
             }
             StatementKind::Jc(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xDA, addr), format!("jc {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xDA, addr), format!("jc {}", Self::format_label(label))))
             }
             StatementKind::Jnc(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xD2, addr), format!("jnc {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xD2, addr), format!("jnc {}", Self::format_label(label))))
             }
             StatementKind::Jm(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xFA, addr), format!("jm {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xFA, addr), format!("jm {}", Self::format_label(label))))
             }
             StatementKind::Jp(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xF2, addr), format!("jp {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xF2, addr), format!("jp {}", Self::format_label(label))))
             }
             StatementKind::Jpo(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xE2, addr), format!("jc {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xE2, addr), format!("jc {}", Self::format_label(label))))
             }
             StatementKind::Jpe(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xEA, addr), format!("jnc {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xEA, addr), format!("jnc {}", Self::format_label(label))))
             }
             StatementKind::Jmp(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
-                Some((Self::prepend_to_addr(0xC3, addr), format!("jnc {}", Compiler::pretty_print_addr(addr))))
+                Some((Self::prepend_to_addr(0xC3, addr), format!("jnc {}", Self::format_label(label))))
             }
             StatementKind::Rst(code) => {
                 match *code {

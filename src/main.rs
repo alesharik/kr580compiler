@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .write(true)
             .truncate(true)
             .open(format!("{}_table.csv", filename))?;
-        file.write_all("ADDRES;CODE;ASM\n".as_bytes())?;
+        file.write_all("ADDRES;CODE;LABEL;ASM\n".as_bytes())?;
         for x in &result.table {
             file.write_all(format!("{}\n", x).as_bytes())?;
         }
