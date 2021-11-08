@@ -108,6 +108,146 @@ pub enum MovArg {
     Constant(u16),
 }
 
+#[derive(Eq, PartialEq, Debug)]
+pub enum JmpType {
+    Jmp,
+    Jz,
+    Jnz,
+    Jc,
+    Jnc,
+    Jm,
+    Jp,
+    Jpo,
+    Jpe,
+    Call,
+    Cz,
+    Cnz,
+    Cc,
+    Cnc,
+    Cpo,
+    Cpe,
+    Cp,
+    Cm,
+    Ret,
+    Rz,
+    Rnz,
+    Rc,
+    Rnc,
+    Rpo,
+    Rpe,
+    Rp,
+    Rm,
+}
+
+impl JmpType {
+    pub fn code(&self) -> u8 {
+        match self {
+            JmpType::Jmp => 0xC3,
+            JmpType::Jz => 0xCA,
+            JmpType::Jnz => 0xC2,
+            JmpType::Jc => 0xDA,
+            JmpType::Jnc => 0xD2,
+            JmpType::Jm => 0xFA,
+            JmpType::Jp => 0xF2,
+            JmpType::Jpo => 0xE2,
+            JmpType::Jpe => 0xEA,
+            JmpType::Call => 0xCD,
+            JmpType::Cz => 0xCC,
+            JmpType::Cc => 0xDC,
+            JmpType::Cpe => 0xED,
+            JmpType::Cm => 0xFD,
+            JmpType::Cnz => 0xC4,
+            JmpType::Cnc => 0xD4,
+            JmpType::Cpo => 0xE4,
+            JmpType::Cp => 0xF4,
+            JmpType::Ret => 0xC9,
+            JmpType::Rz => 0xC8,
+            JmpType::Rc => 0xD8,
+            JmpType::Rpe => 0xE8,
+            JmpType::Rm => 0xF8,
+            JmpType::Rnz => 0xC0,
+            JmpType::Rnc => 0xD0,
+            JmpType::Rpo => 0xE0,
+            JmpType::Rp => 0xF0,
+        }
+    }
+
+    pub fn name(&self) -> &'static str {
+        match self {
+            JmpType::Jmp => "jmp",
+            JmpType::Jz => "jz",
+            JmpType::Jnz => "jnz",
+            JmpType::Jc => "jc",
+            JmpType::Jnc => "jnc",
+            JmpType::Jp => "jp",
+            JmpType::Jm => "jm",
+            JmpType::Jpo => "jpo",
+            JmpType::Jpe => "jpe",
+            JmpType::Call => "call",
+            JmpType::Cz => "cz",
+            JmpType::Cc => "cc",
+            JmpType::Cpe => "cpe",
+            JmpType::Cm => "cm",
+            JmpType::Cnz => "cnz",
+            JmpType::Cnc => "cnc",
+            JmpType::Cpo => "cpo",
+            JmpType::Cp => "cp",
+            JmpType::Ret => "ret",
+            JmpType::Rz => "rz",
+            JmpType::Rnz => "rnz",
+            JmpType::Rc => "rc",
+            JmpType::Rnc => "rnc",
+            JmpType::Rpo => "rpo",
+            JmpType::Rpe => "rpe",
+            JmpType::Rp => "rp",
+            JmpType::Rm => "rm",
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum RetType {
+    Ret,
+    Rz,
+    Rnz,
+    Rc,
+    Rnc,
+    Rpo,
+    Rpe,
+    Rp,
+    Rm,
+}
+
+impl RetType {
+    pub fn code(&self) -> u8 {
+        match self {
+            RetType::Ret => 0xC9,
+            RetType::Rz => 0xC8,
+            RetType::Rc => 0xD8,
+            RetType::Rpe => 0xE8,
+            RetType::Rm => 0xF8,
+            RetType::Rnz => 0xC0,
+            RetType::Rnc => 0xD0,
+            RetType::Rpo => 0xE0,
+            RetType::Rp => 0xF0,
+        }
+    }
+
+    pub fn name(&self) -> &'static str {
+        match self {
+            RetType::Ret => "ret",
+            RetType::Rz => "rz",
+            RetType::Rnz => "rnz",
+            RetType::Rc => "rc",
+            RetType::Rnc => "rnc",
+            RetType::Rpo => "rpo",
+            RetType::Rpe => "rpe",
+            RetType::Rp => "rp",
+            RetType::Rm => "rm",
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum StatementKind {
     Nop,
@@ -134,18 +274,9 @@ pub enum StatementKind {
     Xorn(u16),
     Cmp(Register),
     Cmpn(u16),
-    Jmp(String),
     Rst(u8),
     Out(u8),
     In(u8),
-    Jz(String),
-    Jnz(String),
-    Jc(String),
-    Jnc(String),
-    Jpo(String),
-    Jpe(String),
-    Jp(String),
-    Jm(String),
     Neg(Register),
     Inc(Register),
     Incp(RegisterPair),
@@ -154,6 +285,9 @@ pub enum StatementKind {
     Daa,
     Dad(RegisterPair),
     Hlt,
+    Pchl,
+    Jmp(String, JmpType),
+    Ret(RetType),
     // set label to specific address
     Lset(u16),
 }
