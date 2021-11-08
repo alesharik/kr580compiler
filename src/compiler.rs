@@ -98,6 +98,8 @@ impl Compiler {
             StatementKind::Stc => Some((vec![0x37], "stc".to_owned())),
             StatementKind::Daa => Some((vec![0x27], "daa".to_owned())),
             StatementKind::Hlt => Some((vec![0x76], "hlt".to_owned())),
+            StatementKind::Cli => Some((vec![0xF3], "DI".to_owned())),
+            StatementKind::Sti => Some((vec![0xFB], "EI".to_owned())),
             StatementKind::Pchl => Some((vec![0xE9], format!("pchl"))),
             StatementKind::Jmp(label, typ) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));

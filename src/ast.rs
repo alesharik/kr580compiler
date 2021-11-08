@@ -288,6 +288,8 @@ pub enum StatementKind {
     Pchl,
     Jmp(String, JmpType),
     Ret(RetType),
+    Cli,
+    Sti,
     // set label to specific address
     Lset(u16),
 }

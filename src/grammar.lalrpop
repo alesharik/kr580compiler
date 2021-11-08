@@ -89,6 +89,8 @@ StatementKind: StatementKind = {
     "rpe" => StatementKind::Ret(RetType::Rpe),
     "rp" => StatementKind::Ret(RetType::Rp),
     "rm" => StatementKind::Ret(RetType::Rm),
+    "cli" => StatementKind::Cli,
+    "sti" => StatementKind::Sti,
 }
 
 Register: Register = {
