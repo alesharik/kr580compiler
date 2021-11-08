@@ -290,6 +290,10 @@ pub enum StatementKind {
     Ret(RetType),
     Cli,
     Sti,
+    Push(RegisterPair),
+    Pushpsw,
+    Pop(RegisterPair),
+    Poppsw,
     // set label to specific address
     Lset(u16),
 }

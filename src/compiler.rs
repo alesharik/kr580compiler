@@ -121,7 +121,35 @@ impl Compiler {
                         None
                     }
                 }
+            },
+            StatementKind::Push(pair) => {
+                if pair == &RegisterPair::SP {
+                    eprintln!("Cannot push SP onto stack");
+                    None
+                } else {
+                    Some((vec![match pair {
+                        RegisterPair::HL => 0xE5,
+                        RegisterPair::DE => 0xD5,
+                        RegisterPair::BC => 0xC5,
+                        RegisterPair::SP => unreachable!(),
+                    }], format!("push {}", pair.name())))
+                }
+            },
+            StatementKind::Pop(pair) => {
+                if pair == &RegisterPair::SP {
+                    eprintln!("Cannot push SP onto stack");
+                    None
+                } else {
+                    Some((vec![match pair {
+                        RegisterPair::HL => 0xE1,
+                        RegisterPair::DE => 0xD1,
+                        RegisterPair::BC => 0xC1,
+                        RegisterPair::SP => unreachable!(),
+                    }], format!("pop {}", pair.name())))
+                }
             }
+            StatementKind::Pushpsw => Some((vec![0xF5], format!("push psw"))),
+            StatementKind::Poppsw => Some((vec![0xF1], format!("pop psw"))),
             StatementKind::Adc(reg) => Some((vec![0x88 + reg.code_off()], format!("adc {}", reg.name()))),
             StatementKind::Add(reg) => Some((vec![0x80 + reg.code_off()], format!("add {}", reg.name()))),
             StatementKind::Sub(reg) => Some((vec![0x90 + reg.code_off()], format!("sub {}", reg.name()))),

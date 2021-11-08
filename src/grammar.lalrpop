@@ -91,6 +91,10 @@ StatementKind: StatementKind = {
     "rm" => StatementKind::Ret(RetType::Rm),
     "cli" => StatementKind::Cli,
     "sti" => StatementKind::Sti,
+    "push" <r:RegisterPair> => StatementKind::Push(r),
+    "pop" <r:RegisterPair> => StatementKind::Pop(r),
+    "push" "psw" => StatementKind::Pushpsw,
+    "pop" "psw" => StatementKind::Poppsw,
 }
 
 Register: Register = {
