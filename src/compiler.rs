@@ -234,9 +234,15 @@ impl Compiler {
                                 eprintln!("Loading register into register pair not supported");
                                 None
                             },
-                            MovArg::RegisterPair(_) => {
-                                eprintln!("Moving values between register pairs is not supported");
-                                None
+                            MovArg::RegisterPair(p) => {
+                                if pair == &RegisterPair::SP && p == &RegisterPair::HL {
+                                    Some((vec![0xF9], format!("sphl")))
+                                } else if (pair == &RegisterPair::DE && p == &RegisterPair::HL) || (pair == &RegisterPair::HL && p == &RegisterPair::DE) {
+                                    Some((vec![0xEB], format!("xchg")))
+                                } else {
+                                    eprintln!("Moving values between common register pairs is not supported");
+                                    None
+                                }
                             },
                             MovArg::MemoryDirect(addr) => {
                                 if pair != &RegisterPair::HL {
@@ -246,9 +252,13 @@ impl Compiler {
                                     Some((Self::prepend_to_addr(0x2A, *addr), format!("lhld {:04X}", addr)))
                                 }
                             },
-                            MovArg::MemoryIndirect(_) => {
-                                eprintln!("Indirect memory access is not supported for register pairs");
-                                None
+                            MovArg::MemoryIndirect(p) => {
+                                if pair == &RegisterPair::HL && p == &RegisterPair::SP {
+                                    Some((vec![0xE3], format!("xthl")))
+                                } else {
+                                    eprintln!("Indirect memory access is supported only for HL from SP");
+                                    None
+                                }
                             }
                         }
                     },
@@ -266,6 +276,13 @@ impl Compiler {
                                         None
                                     }
                                 }
+                            }
+                        } else if let MovArg::RegisterPair(b_pair) = b {
+                            if pair == &RegisterPair::SP && b_pair == &RegisterPair::HL {
+                                Some((vec![0xE3], format!("xthl")))
+                            } else {
+                                eprintln!("Indirect memory access is supported only for HL from SP");
+                                None
                             }
                         } else {
                             eprintln!("Indirect moving into memory is supported only for registers");
