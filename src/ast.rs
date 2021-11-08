@@ -24,6 +24,24 @@ impl RegisterPair {
             RegisterPair::SP => 0x30,
         }
     }
+
+    pub fn push_code(&self) -> u8 {
+        match self {
+            RegisterPair::HL => 0xE5,
+            RegisterPair::DE => 0xD5,
+            RegisterPair::BC => 0xC5,
+            RegisterPair::SP => unreachable!(),
+        }
+    }
+
+    pub fn pop_code(&self) -> u8 {
+        match self {
+            RegisterPair::HL => 0xE1,
+            RegisterPair::DE => 0xD1,
+            RegisterPair::BC => 0xC1,
+            RegisterPair::SP => unreachable!(),
+        }
+    }
 }
 
 #[derive(Eq, PartialEq, Debug)]
@@ -249,6 +267,72 @@ impl RetType {
 }
 
 #[derive(Debug)]
+pub enum ArithmeticType {
+    Adc,
+    Add,
+    Sub,
+    Sbb,
+    And,
+    Xor,
+    Or,
+    Cmp,
+}
+
+impl ArithmeticType {
+    pub fn reg_code(&self) -> u8 {
+        match self {
+            ArithmeticType::Adc => 0x88,
+            ArithmeticType::Add => 0x80,
+            ArithmeticType::Sub => 0x90,
+            ArithmeticType::Sbb => 0x98,
+            ArithmeticType::And => 0xA0,
+            ArithmeticType::Xor => 0xA8,
+            ArithmeticType::Or =>  0xB0,
+            ArithmeticType::Cmp => 0xB8,
+        }
+    }
+
+    pub fn const_code(&self) -> u8 {
+        match self {
+            ArithmeticType::Adc => 0xCE,
+            ArithmeticType::Add => 0xC6,
+            ArithmeticType::Sub => 0xD6,
+            ArithmeticType::Sbb => 0xDE,
+            ArithmeticType::And => 0xF6,
+            ArithmeticType::Xor => 0xE6,
+            ArithmeticType::Or =>  0xEE,
+            ArithmeticType::Cmp => 0xFE,
+        }
+    }
+
+    pub fn name(&self) -> &'static str {
+        match self {
+            ArithmeticType::Adc => "adc",
+            ArithmeticType::Add => "add",
+            ArithmeticType::Sub => "sub",
+            ArithmeticType::Sbb => "sbb",
+            ArithmeticType::And => "ana",
+            ArithmeticType::Xor => "xra",
+            ArithmeticType::Or => "ora",
+            ArithmeticType::Cmp => "cmp",
+        }
+    }
+
+    pub fn const_name(&self) -> &'static str {
+        match self {
+            ArithmeticType::Adc => "aci",
+            ArithmeticType::Add => "adi",
+            ArithmeticType::Sub => "sui",
+            ArithmeticType::Sbb => "sbi",
+            ArithmeticType::And => "ani",
+            ArithmeticType::Xor => "xri",
+            ArithmeticType::Or => "ori",
+            ArithmeticType::Cmp => "cpi",
+        }
+    }
+}
+
+#[derive(Debug)]
 pub enum StatementKind {
     Nop,
     Mov(MovArg, MovArg),
@@ -258,22 +342,8 @@ pub enum StatementKind {
     Rar,
     Stc,
     Cmc,
-    Add(Register),
-    Adc(Register),
-    Addn(u16),
-    Adcn(u16),
-    Sub(Register),
-    Sbb(Register),
-    Subn(u16),
-    Sbbn(u16),
-    And(Register),
-    Andn(u16),
-    Or(Register),
-    Orn(u16),
-    Xor(Register),
-    Xorn(u16),
-    Cmp(Register),
-    Cmpn(u16),
+    Arif(Register, ArithmeticType),
+    Arifn(u16, ArithmeticType),
     Rst(u8),
     Out(u8),
     In(u8),
