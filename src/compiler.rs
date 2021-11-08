@@ -154,6 +154,30 @@ impl Compiler {
                     }
                 }
             },
+            StatementKind::Inc(reg) => {
+                let cmd = if reg.left_table_is_down() { 0x0C } else { 0x04 } + reg.left_table_x_off();
+                Some((vec![cmd], format!("inr {}", reg.name())))
+            },
+            StatementKind::Incp(pair) => {
+                Some((vec![match pair {
+                    RegisterPair::BC => 0x03,
+                    RegisterPair::DE => 0x13,
+                    RegisterPair::HL => 0x23,
+                    RegisterPair::SP => 0x33,
+                }], format!("inx {}", pair.name())))
+            },
+            StatementKind::Dcr(reg) => {
+                let cmd = if reg.left_table_is_down() { 0x0D } else { 0x05 } + reg.left_table_x_off();
+                Some((vec![cmd], format!("dcr {}", reg.name())))
+            },
+            StatementKind::Dcrp(pair) => {
+                Some((vec![match pair {
+                    RegisterPair::BC => 0x0B,
+                    RegisterPair::DE => 0x1B,
+                    RegisterPair::HL => 0x2B,
+                    RegisterPair::SP => 0x3B,
+                }], format!("dcx {}", pair.name())))
+            },
             StatementKind::Mov(a, b) => {
                 match a {
                     MovArg::Constant(_) => {
