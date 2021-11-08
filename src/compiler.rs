@@ -87,6 +87,8 @@ impl Compiler {
             StatementKind::Rlc => Some((vec![0x07], "rlc".to_owned())),
             StatementKind::Rrc => Some((vec![0x0F], "rrc".to_owned())),
             StatementKind::Stc => Some((vec![0x37], "stc".to_owned())),
+            StatementKind::Daa => Some((vec![0x27], "daa".to_owned())),
+            StatementKind::Hlt => Some((vec![0x76], "hlt".to_owned())),
             StatementKind::Jz(label) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
                 Some((Self::prepend_to_addr(0xCA, addr), format!("jz {}", Self::format_label(label))))
@@ -147,6 +149,7 @@ impl Compiler {
             StatementKind::Xor(reg) => Some((vec![0xA8 + reg.code_off()], format!("xra {}", reg.name()))),
             StatementKind::Or(reg) => Some((vec![0xB0 + reg.code_off()], format!("ora {}", reg.name()))),
             StatementKind::Cmp(reg) => Some((vec![0xB8 + reg.code_off()], format!("cmp {}", reg.name()))),
+            StatementKind::Dad(pair) => Some((vec![0x09 + pair.left_table_x_off()], format!("dat {}", pair.name()))),
             StatementKind::Neg(reg) => {
                 match reg {
                     Register::A => Some((vec![0x2F], format!("cma"))),

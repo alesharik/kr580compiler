@@ -149,6 +149,9 @@ pub enum StatementKind {
     Incp(RegisterPair),
     Dcr(Register),
     Dcrp(RegisterPair),
+    Daa,
+    Dad(RegisterPair),
+    Hlt,
     // set label to specific address
     Lset(u16),
 }

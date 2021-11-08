@@ -59,6 +59,9 @@ StatementKind: StatementKind = {
     "inc" <r:RegisterPair> => StatementKind::Incp(r),
     "dec" <r:Register> => StatementKind::Dcr(r),
     "dec" <r:RegisterPair> => StatementKind::Dcrp(r),
+    "daa" => StatementKind::Daa,
+    "dad" <r:RegisterPair> => StatementKind::Dad(r),
+    "hlt" => StatementKind::Hlt,
 }
 
 Register: Register = {
