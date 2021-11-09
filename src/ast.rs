@@ -298,9 +298,9 @@ impl ArithmeticType {
             ArithmeticType::Add => 0xC6,
             ArithmeticType::Sub => 0xD6,
             ArithmeticType::Sbb => 0xDE,
-            ArithmeticType::And => 0xF6,
-            ArithmeticType::Xor => 0xE6,
-            ArithmeticType::Or =>  0xEE,
+            ArithmeticType::And => 0xE6,
+            ArithmeticType::Xor => 0xEE,
+            ArithmeticType::Or =>  0xF6,
             ArithmeticType::Cmp => 0xFE,
         }
     }
