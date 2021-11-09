@@ -101,6 +101,8 @@ impl Compiler {
             StatementKind::Pchl => Some((vec![0xE9], "pchl".to_owned())),
             StatementKind::In(port) => Some((vec![0xDB, *port], format!("in {}", port))),
             StatementKind::Out(port) => Some((vec![0xD3, *port], format!("out {}", port))),
+            StatementKind::Db(dat) => Self::check_8bit_const(dat).map(|_| (vec![*dat as u8], format!("{:02X}", dat))),
+            StatementKind::Dw(dat) => Some((dat.to_be_bytes().to_vec(), format!("{:04X}", dat))),
             StatementKind::Jmp(label, typ) => {
                 let addr = *label_map.get(label).expect(&format!("Label {} not found", label));
                 Some((Self::prepend_to_addr(typ.code(), addr), format!("{} {}", typ.name(), Self::format_label(label))))

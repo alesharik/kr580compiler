@@ -95,6 +95,8 @@ StatementKind: StatementKind = {
     "pop" <r:RegisterPair> => StatementKind::Pop(r),
     "push" "psw" => StatementKind::Pushpsw,
     "pop" "psw" => StatementKind::Poppsw,
+    "db" <r:Num> => StatementKind::Db(r),
+    "dw" <r:Num> => StatementKind::Dw(r),
 }
 
 Register: Register = {

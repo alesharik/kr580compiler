@@ -364,6 +364,8 @@ pub enum StatementKind {
     Pushpsw,
     Pop(RegisterPair),
     Poppsw,
+    Db(u16),
+    Dw(u16),
     // set label to specific address
     Lset(u16),
 }
