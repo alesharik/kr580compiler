@@ -1,0 +1,11 @@
+ADDRES;CODE;LABEL;ASM
+8200;21 FF 83 ;;lxi h, 83FF
+8203;D3 02 ;;out 2
+8205;06 3F ;NO;mvi b, 3F
+8207;70 ;;mov m, b
+8208;DB 00 ;IN;in 0
+820A;D6 0A ;;sui 0A
+820C;FA 05 82 ;;jm NO
+820F;06 06 ;;mvi b, 06
+8211;70 ;;mov m, b
+8212;C3 08 82 ;;jmp IN
